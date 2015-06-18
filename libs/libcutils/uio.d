@@ -1,1 +1,0 @@
-uio.o: uio.c
