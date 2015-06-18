@@ -9,7 +9,7 @@ SRC_DEPENDS :=
 CFLAGS      := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2
 CXXFLAGS    := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2
 LDFLAGS     :=
-LDLIBS      := -lpthread -lwayland-client -lwayland-egl -ldl
+LDLIBS      := -lpthread $(pkg-config --libs wayland-egl) $(pkg-config --libs wayland-egl) -ldl
 
 DEBUG       ?= 0
 VERBOSE     ?= 0

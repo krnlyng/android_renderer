@@ -21,7 +21,7 @@ DEP         := $(OBJ:.o=.d)
 CFLAGS      := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2 -fpermissive
 CXXFLAGS    := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2 -fpermissive
 LDFLAGS     := -L../../../../..
-LDLIBS      := -lOpenglCodecCommon -lwayland-client -lwayland-egl
+LDLIBS      := -lOpenglCodecCommon $(pkg-config --libs wayland-egl) $(pkg-config --libs wayland-client)
 
 CFLAGS		+= -I../../include -I../../../shared/OpenglOsUtils/ -I../../../host/include/libOpenglRender/ -I../../../shared/OpenglCodecCommon -I../../../host/libs/GLESv1_dec -I../../../../../libGLESv1_dec_intermediates -I../../../../../emulator/opengl/system/GLESv1_enc -I../../../../../emulator/opengl/host/libs/GLESv2_dec -I../../../../../libGLESv2_dec_intermediates -I../../../../../emulator/opengl/system/GLESv2_enc -I../../../../../lib_renderControl_dec_intermediates -I../../../../../include -I../../../../../emulator/opengl/system/renderControl_enc
 CXXFLAGS	+= -I../../include -I../../../shared/OpenglOsUtils/ -I../../../host/include/libOpenglRender/ -I../../../shared/OpenglCodecCommon -I../../../host/libs/GLESv1_dec -I../../../../../libGLESv1_dec_intermediates -I../../../../../emulator/opengl/system/GLESv1_enc -I../../../../../emulator/opengl/host/libs/GLESv2_dec -I../../../../../libGLESv2_dec_intermediates -I../../../../../emulator/opengl/system/GLESv2_enc -I../../../../../lib_renderControl_dec_intermediates -I../../../../../include -I../../../../../emulator/opengl/system/renderControl_enc
