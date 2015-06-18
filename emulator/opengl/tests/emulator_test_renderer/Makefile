@@ -7,7 +7,7 @@ DEP         := $(OBJ:.o=.d)
 CFLAGS      := -Wall -std=gnu99
 CXXFLAGS    := -Wall
 LDFLAGS     := -L../../../..
-LDLIBS      := -lOpenglRender -lGLESv1_dec -lGLESv2_dec -lOpenglOsUtils -lX11 -lOpenglCodecCommon -l_renderControl_dec -lutils -lrt -lz -lpthread -lSDL2
+LDLIBS      := -lOpenglRender -lGLESv1_dec -lGLESv2_dec -lOpenglOsUtils -lOpenglCodecCommon -l_renderControl_dec -lutils -lrt -lz -lpthread -lSDL2
 
 CFLAGS		+= -DHAVE_PTHREADS -DHAVE_SYS_UIO_H
 CXXFLAGS	+= -DHAVE_PTHREADS -DHAVE_SYS_UIO_H
