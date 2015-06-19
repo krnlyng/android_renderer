@@ -76,10 +76,10 @@ bool initLibrary(void)
     return true;
 }
 
+/* krnlyng */
 bool initOpenGLRenderer(int width, int height, int portNum,
         OnPostFn onPost, void* onPostContext, EGLNativeDisplayType display)
 {
-
     //
     // Fail if renderer is already initialized
     //
@@ -227,11 +227,13 @@ bool stopOpenGLRenderer()
     return ret;
 }
 
+/* krnlyng */
 bool createOpenGLSubwindow(FBNativeWindowType window,
-                           int x, int y, int width, int height, float zRot)
+                           int x, int y, int width, int height, float zRot, EGLNativeDisplayType display)
 {
     if (s_renderThread) {
-        return FrameBuffer::setupSubWindow(window,x,y,width,height, zRot);
+        /* krnlyng */
+        return FrameBuffer::setupSubWindow(window,x,y,width,height, zRot, display);
     }
     else {
         //

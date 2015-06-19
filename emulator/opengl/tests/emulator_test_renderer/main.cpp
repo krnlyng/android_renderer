@@ -41,7 +41,7 @@ static int convert_keysym(int sym); // forward
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 #else
 /* krnlyng, thanks to http://jan.newmarch.name/Wayland/EGL */
-
+/*
 struct wl_display *the_wl_display = NULL;
 struct wl_compositor *compositor = NULL;
 struct wl_surface *surface;
@@ -112,7 +112,7 @@ create_opaque_region() {
           540);
     wl_surface_set_opaque_region(surface, region);
 }
-
+*/
 int main(int argc, char *argv[])
 #endif
 {
@@ -156,32 +156,16 @@ int main(int argc, char *argv[])
     }
 */
 
-    /* krnlyng */
-    the_wl_display = wl_display_connect(0);
-
-    get_server_references();
-
-    surface = wl_compositor_create_surface(compositor);
-    if(surface == NULL)
-    {
-        fprintf(stderr, "Cannot create wl surface\n");
-        return -1;
-    }
-
-    shell_surface = wl_shell_get_shell_surface(shell, surface);
-    if(shell_surface == NULL)
-    {
-        fprintf(stderr, "wl_shell_get_shell_surface failed\n");
-        return -1;
-    }
-
-    wl_shell_surface_set_toplevel(shell_surface);
-
-    create_opaque_region();
-
     initLibrary();
 
     printf("initializing renderer process\n");
+
+    struct wl_display *the_wl_display = wl_display_connect(0);
+    if(the_wl_display == NULL)
+    {
+        printf("Could not connect to display\n");
+        return -1;
+    }
 
     /* krnlyng do egl init here */
     bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0, the_wl_display);
@@ -189,15 +173,6 @@ int main(int argc, char *argv[])
         return -1;
     }
     printf("renderer process started\n");
-
-    egl_window = wl_egl_window_create(surface, 960, 540);
-    if(egl_window == EGL_NO_SURFACE)
-    {
-        fprintf(stderr, "Cannot create egl window\n");
-        return -1;
-    }
-
-    windowId = (FBNativeWindowType)egl_window;
 
     /* TODO */
     SDL_Window *sdl_win = NULL;
@@ -237,7 +212,7 @@ int main(int argc, char *argv[])
     }
 #elif __linux__
     /* krnylng */
-    windowId = (FBNativeWindowType)wminfo.info.wl.surface;
+    //windowId = (FBNativeWindowType)wminfo.info.wl.surface;
 #elif __APPLE__
     windowId = wminfo.nsWindowPtr;
 #endif
@@ -275,7 +250,7 @@ int main(int argc, char *argv[])
 
     float zRot = 0.0f;
     inited = createOpenGLSubwindow(windowId, 0, 0,
-                                   winWidth, winHeight, zRot);
+                                   winWidth, winHeight, zRot, the_wl_display);
     if (!inited) {
         printf("failed to create OpenGL subwindow\n");
         stopOpenGLRenderer();
@@ -332,7 +307,7 @@ int main(int argc, char *argv[])
                                                 (winWidth - subwinWidth) / 2,
                                                 (winHeight - subwinHeight) / 2,
                                                 subwinWidth, subwinHeight, 
-                                                zRot);
+                                                zRot, the_wl_display);
                     printf("create subwin returned %d\n", stat);
                 }
                 else if (ev.key.keysym.sym == SDLK_KP_PLUS) {
@@ -345,7 +320,7 @@ int main(int argc, char *argv[])
                                                 (winWidth - subwinWidth) / 2,
                                                 (winHeight - subwinHeight) / 2,
                                                 subwinWidth, subwinHeight, 
-                                                zRot);
+                                                zRot, the_wl_display);
                     printf("create subwin returned %d\n", stat);
                 }
                 else if (ev.key.keysym.sym == SDLK_KP_MULTIPLY) {

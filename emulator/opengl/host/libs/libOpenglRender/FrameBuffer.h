@@ -46,10 +46,11 @@ struct FrameBufferCaps
 class FrameBuffer
 {
 public:
+    /* krnlyng */
     static bool initialize(int width, int height, OnPostFn onPost, void* onPostContext, EGLNativeDisplayType display);
     static bool setupSubWindow(FBNativeWindowType p_window,
                                 int x, int y,
-                                int width, int height, float zRot);
+                                int width, int height, float zRot, EGLNativeDisplayType display);
     static bool removeSubWindow();
     static void finalize();
     static FrameBuffer *getFB() { return s_theFrameBuffer; }

@@ -87,7 +87,6 @@ int setStreamMode(int mode);
 // This function is *NOT* thread safe and should be called first
 // to initialize the renderer after initLibrary().
 //
-/* krnlyng */
 bool initOpenGLRenderer(int width, int height, int portNum,
                         OnPostFn onPost, void* onPostContext, EGLNativeDisplayType display);
 
@@ -101,7 +100,7 @@ bool initOpenGLRenderer(int width, int height, int portNum,
 //     zRot is the rotation to apply on the framebuffer display image.
 //
 bool createOpenGLSubwindow(FBNativeWindowType window,
-                           int x, int y, int width, int height, float zRot);
+                           int x, int y, int width, int height, float zRot, EGLNativeDisplayType display);
 
 //
 // destroyOpenGLSubwindow -

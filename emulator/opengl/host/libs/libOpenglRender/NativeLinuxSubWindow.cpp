@@ -77,15 +77,13 @@ static const struct wl_registry_listener registry_listener = {
 };
 
 static int
-get_server_references(void) {
-
-    the_wl_display = wl_display_connect(NULL);
-    if (the_wl_display == NULL) {
-        fprintf(stderr, "Can't connect to display\n");
+get_server_references(EGLNativeDisplayType display) {
+    the_wl_display = display;
+    if(the_wl_display == NULL)
+    {
+        fprintf(stderr, "get_server_references: invalid display argument\n");
         return -1;
     }
-
-    printf("connected to display\n");
 
     struct wl_registry *registry = wl_display_get_registry(the_wl_display);
     wl_registry_add_listener(registry, &registry_listener, NULL);
@@ -104,15 +102,13 @@ get_server_references(void) {
 }
 
 EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
-                                    EGLNativeDisplayType* display_out,
+                                    EGLNativeDisplayType display,
                                     int x, int y,int width, int height) {
 
     /* krnlyng */
-    printf("creating sub window\n");
-    if (!the_wl_display) the_wl_display = wl_display_connect(0);
-    *display_out = the_wl_display;
+    printf("creating sub window\n"); 
 
-    if(get_server_references() < 0) return NULL;
+    if(get_server_references(display) < 0) return NULL;
 
     surface = wl_compositor_create_surface(compositor);
     if(surface == NULL)

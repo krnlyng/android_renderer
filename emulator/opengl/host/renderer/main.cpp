@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
     }
 
     inited = FrameBuffer::setupSubWindow(windowId,
-                                         winX, winY, winWidth, winHeight, 0.0);
+                                         winX, winY, winWidth, winHeight, 0.0, NULL);
     if (!inited) {
         fprintf(stderr,"Failed to create subwindow Framebuffer\n");
         return -1;

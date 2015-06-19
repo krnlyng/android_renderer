@@ -135,7 +135,7 @@ bool FrameBuffer::initialize(int width, int height, OnPostFn onPost, void* onPos
     // Initialize backend EGL display
     //
     /* krnlyng */
-    fb->m_eglDisplay = s_egl.eglGetDisplay((EGLNativeDisplayType) display);
+    fb->m_eglDisplay = s_egl.eglGetDisplay(display);
     //fb->m_eglDisplay = s_egl.eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (fb->m_eglDisplay == EGL_NO_DISPLAY) {
         ERR("Failed to Initialize backend EGL display\n");
@@ -399,9 +399,10 @@ FrameBuffer::~FrameBuffer()
     free(m_fbImage);
 }
 
+/* krnlyng */
 bool FrameBuffer::setupSubWindow(FBNativeWindowType p_window,
                                   int p_x, int p_y,
-                                  int p_width, int p_height, float zRot)
+                                  int p_width, int p_height, float zRot, EGLNativeDisplayType display)
 {
     bool success = false;
 
@@ -410,9 +411,11 @@ bool FrameBuffer::setupSubWindow(FBNativeWindowType p_window,
         FrameBuffer *fb = s_theFrameBuffer;
         if (!fb->m_subWin) {
 
+            /* krnlyng */
             // create native subwindow for FB display output
-            fb->m_subWin = createSubWindow(p_window,
-                                           &fb->m_subWinDisplay,
+            fb->m_subWinDisplay = display;
+            fb->m_subWin = createSubWindow(p_window, /* krnlyng */
+                                           fb->m_subWinDisplay,
                                            p_x,p_y,p_width,p_height);
             if (fb->m_subWin) {
                 fb->m_nativeWindow = p_window;

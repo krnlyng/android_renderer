@@ -25,7 +25,7 @@ extern "C" {
 
 /* krnlyng */
 EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
-                                    EGLNativeDisplayType* display_out,
+                                    EGLNativeDisplayType display,
                                     int x, int y,int width, int height);
 
 
