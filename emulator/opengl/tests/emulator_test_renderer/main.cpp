@@ -20,6 +20,10 @@
 #include <SDL2/SDL_syswm.h>
 
 #include <EGL/egl.h>
+#include <wayland-egl.h>
+#include <wayland-client.h>
+#include <wayland-client-protocol.h>
+
 #include <stdio.h>
 #include <string.h>
 #include "libOpenglRender/render_api.h"
@@ -36,6 +40,70 @@ static int convert_keysym(int sym); // forward
 #include <winsock2.h>
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 #else
+/* krnlyng, thanks to http://jan.newmarch.name/Wayland/EGL */
+
+struct wl_display *the_wl_display = NULL;
+struct wl_compositor *compositor = NULL;
+struct wl_surface *surface;
+struct wl_egl_window *egl_window;
+struct wl_region *region;
+struct wl_shell *shell;
+struct wl_shell_surface *shell_surface;
+
+static void
+global_registry_handler(void *data, struct wl_registry *registry, uint32_t id,
+           const char *interface, uint32_t version)
+{
+//    printf("Got a registry event for %s id %d\n", interface, id);
+    if (strcmp(interface, "wl_compositor") == 0) {
+        compositor = (wl_compositor*)wl_registry_bind(registry, 
+                      id, 
+                      &wl_compositor_interface, 
+                      1);
+    } else if (strcmp(interface, "wl_shell") == 0) {
+    shell = (wl_shell*)wl_registry_bind(registry, id,
+                 &wl_shell_interface, 1);
+    
+    }
+}
+
+static void
+global_registry_remover(void *data, struct wl_registry *registry, uint32_t id)
+{
+    printf("Got a registry losing event for %d\n", id);
+}
+
+static const struct wl_registry_listener registry_listener = {
+    global_registry_handler,
+    global_registry_remover
+};
+
+static void
+get_server_references(void) {
+
+    the_wl_display = wl_display_connect(NULL);
+
+    if (the_wl_display == NULL) {
+        fprintf(stderr, "Can't connect to display\n");
+        exit(1);
+    }
+
+    printf("connected to display\n");
+
+    struct wl_registry *registry = wl_display_get_registry(the_wl_display);
+    wl_registry_add_listener(registry, &registry_listener, NULL);
+
+    wl_display_dispatch(the_wl_display);
+    wl_display_roundtrip(the_wl_display);
+
+    if (compositor == NULL || shell == NULL) {
+        fprintf(stderr, "Can't find compositor or shell\n");
+        exit(1);
+    } else {
+        fprintf(stderr, "Found compositor and shell\n");
+    }
+}
+
 int main(int argc, char *argv[])
 #endif
 {
@@ -79,6 +147,58 @@ int main(int argc, char *argv[])
     }
 */
 
+    /* krnlyng */
+    the_wl_display = wl_display_connect(0);
+
+    get_server_references();
+
+    surface = wl_compositor_create_surface(compositor);
+    if(surface == NULL)
+    {
+        fprintf(stderr, "Cannot create wl surface\n");
+        return -1;
+    }
+
+    shell_surface = wl_shell_get_shell_surface(shell, surface);
+    if(shell_surface == NULL)
+    {
+        fprintf(stderr, "wl_shell_get_shell_surface failed\n");
+        return -1;
+    }
+
+    wl_shell_surface_set_toplevel(shell_surface);
+
+    initLibrary();
+
+    printf("initializing renderer process\n");
+
+    /* krnlyng do egl init here */
+    bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0, the_wl_display);
+    if (!inited) {
+        return -1;
+    }
+    printf("renderer process started\n");
+
+    egl_window = wl_egl_window_create(surface, 960, 540);
+    if(egl_window == EGL_NO_SURFACE)
+    {
+        fprintf(stderr, "Cannot create egl window\n");
+        return -1;
+    }
+
+    windowId = (FBNativeWindowType)egl_window;
+
+    /* TODO */
+    SDL_Window *sdl_win = NULL;
+/*
+    SDL_Window *sdl_win = SDL_CreateWindowFrom((void*)windowId);
+    if(sdl_win == NULL)
+    {
+        fprintf(stderr, "SDL_CreateWindowFrom failed\n");
+        return -1;
+    }
+*/
+/*
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "SDL init failed %s\n", SDL_GetError());
         return -1;
@@ -92,11 +212,11 @@ int main(int argc, char *argv[])
     }
 
     SDL_ShowCursor(0);
-
+*/
     SDL_SysWMinfo  wminfo;
     memset(&wminfo, 0, sizeof(wminfo));
     /* krnlyng */
-    SDL_GetWindowWMInfo(window, &wminfo);
+    SDL_GetWindowWMInfo(sdl_win, &wminfo);
 #ifdef _WIN32
     windowId = wminfo.window;
     WSADATA  wsaData;
@@ -131,18 +251,16 @@ int main(int argc, char *argv[])
 
     SDL_Window *sdl_win = SDL_CreateWindowFrom((void*)windowId);*/
 
-    initLibrary();
-
-    printf("initializing renderer process\n");
 
     //
     // initialize OpenGL renderer to render in our window
     //
+    /*
     bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0);
     if (!inited) {
         return -1;
     }
-    printf("renderer process started\n");
+    printf("renderer process started\n");*/
 
     float zRot = 0.0f;
     inited = createOpenGLSubwindow(windowId, 0, 0,
@@ -234,6 +352,12 @@ int main(int argc, char *argv[])
                 goto EXIT;
             }
         }
+        /* krnlyng */
+        if(wl_display_dispatch(the_wl_display) < 0)
+        {
+            printf("wl_display_dispatch failed\n");
+            break;
+        }
     }
 EXIT:
     //
@@ -241,6 +365,9 @@ EXIT:
     //
     printf("stopping the renderer process\n");
     stopOpenGLRenderer();
+
+    /* krnlyng */
+    wl_display_disconnect(the_wl_display);
 
     return 0;
 }

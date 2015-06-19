@@ -46,7 +46,7 @@ struct FrameBufferCaps
 class FrameBuffer
 {
 public:
-    static bool initialize(int width, int height, OnPostFn onPost, void* onPostContext);
+    static bool initialize(int width, int height, OnPostFn onPost, void* onPostContext, EGLNativeDisplayType display);
     static bool setupSubWindow(FBNativeWindowType p_window,
                                 int x, int y,
                                 int width, int height, float zRot);

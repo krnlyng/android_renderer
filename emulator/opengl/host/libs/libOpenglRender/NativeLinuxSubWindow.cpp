@@ -29,46 +29,104 @@ static Bool WaitForMapNotify(Display *d, XEvent *e, char *arg)
 }
 */
 
-static wl_display *s_display = NULL;
-volatile struct wl_compositor *compositor = NULL;
-/*
-static void handle_wl_stuff(void *data, struct wl_registry *registry, uint32_t id, const char *interface, uint32_t version)
+/* krnlyng, thanks to http://jan.newmarch.name/Wayland/EGL */
+
+struct wl_display *the_wl_display = NULL;
+struct wl_compositor *compositor = NULL;
+struct wl_surface *surface;
+struct wl_egl_window *egl_window;
+struct wl_region *region;
+struct wl_shell *shell;
+struct wl_shell_surface *shell_surface;
+
+static void
+global_registry_handler(void *data, struct wl_registry *registry, uint32_t id,
+           const char *interface, uint32_t version)
 {
-    if(strcmp(interface, "wl_compositor") == 0)
-    {
-        compositor = wl_registry_bind(registry, id, &wl_compositor_interface, version);
+//    printf("Got a registry event for %s id %d\n", interface, id);
+    if (strcmp(interface, "wl_compositor") == 0) {
+        compositor = (wl_compositor*)wl_registry_bind(registry, 
+                      id, 
+                      &wl_compositor_interface, 
+                      1);
+    } else if (strcmp(interface, "wl_shell") == 0) {
+    shell = (wl_shell*)wl_registry_bind(registry, id,
+                 &wl_shell_interface, 1);
+    
     }
 }
 
+static void
+global_registry_remover(void *data, struct wl_registry *registry, uint32_t id)
+{
+    printf("Got a registry losing event for %d\n", id);
+}
+
 static const struct wl_registry_listener registry_listener = {
-    handle_wl_stuff
-};*/
+    global_registry_handler,
+    global_registry_remover
+};
+
+static int
+get_server_references(void) {
+
+    the_wl_display = wl_display_connect(NULL);
+    if (the_wl_display == NULL) {
+        fprintf(stderr, "Can't connect to display\n");
+        return -1;
+    }
+
+    printf("connected to display\n");
+
+    struct wl_registry *registry = wl_display_get_registry(the_wl_display);
+    wl_registry_add_listener(registry, &registry_listener, NULL);
+
+    wl_display_dispatch(the_wl_display);
+    wl_display_roundtrip(the_wl_display);
+
+    if (compositor == NULL || shell == NULL) {
+        fprintf(stderr, "Can't find compositor or shell\n");
+        return -1;
+    } else {
+        fprintf(stderr, "Found compositor and shell\n");
+    }
+
+    return 0;
+}
 
 EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
                                     EGLNativeDisplayType* display_out,
-                                    int x, int y,int width, int height){
+                                    int x, int y,int width, int height) {
 
-   // The call to this function is protected by a lock
-   // in FrameBuffer so it is safe to check and initialize s_display here
-   printf("creating sub window\n");
-    if(!s_display) s_display = wl_display_connect(0);
-    *display_out = s_display;/*
-    if(compositor == NULL)
+    /* krnlyng */
+    printf("creating sub window\n");
+    if (!the_wl_display) the_wl_display = wl_display_connect(0);
+    *display_out = the_wl_display;
+
+    if(get_server_references() < 0) return NULL;
+
+    surface = wl_compositor_create_surface(compositor);
+    if(surface == NULL)
     {
-        struct wl_registry *registry = wl_display_get_registry(s_display);
-        wl_registry_add_listener(registry, &registry_listener, NULL);
-        while(compositor == NULL) wl_display_dispatch(s_display);
-    }*/
-//    EGLNativeWindowType win = wl_compositor_create_surface(compositor);
-    EGLNativeWindowType win = wl_egl_window_create(p_window, width, height);
+        fprintf(stderr, "Cannot create wl surface\n");
+        return NULL;
+    }
+
+    shell_surface = wl_shell_get_shell_surface(shell, surface);
+    wl_shell_surface_set_toplevel(shell_surface);
+
+    EGLNativeWindowType win = wl_egl_window_create(surface, width, height);
     if(win == EGL_NO_SURFACE || win == NULL)
     {
         fprintf(stderr, "wl_egl_window_create failed\n");
     }
     printf("created sub window\n");
+
     return win;
 
    /*
+   // The call to this function is protected by a lock
+   // in FrameBuffer so it is safe to check and initialize s_display here
    if (!s_display) s_display = XOpenDisplay(NULL);
    *display_out = s_display;
 
@@ -84,6 +142,6 @@ EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
 void destroySubWindow(EGLNativeDisplayType dis,EGLNativeWindowType win){
     /* krnlyng hmm */
     //wl_surface_destroy(win);
-    wl_egl_window_destroy(win);
+    wl_egl_window_destroy((struct wl_egl_window*)win);
     //XDestroyWindow(dis, win);
 }

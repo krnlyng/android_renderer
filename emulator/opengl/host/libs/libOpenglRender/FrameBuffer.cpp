@@ -102,7 +102,7 @@ void FrameBuffer::finalize(){
     }
 }
 
-bool FrameBuffer::initialize(int width, int height, OnPostFn onPost, void* onPostContext)
+bool FrameBuffer::initialize(int width, int height, OnPostFn onPost, void* onPostContext, EGLNativeDisplayType display)
 {
     if (s_theFrameBuffer != NULL) {
         return true;
@@ -134,7 +134,9 @@ bool FrameBuffer::initialize(int width, int height, OnPostFn onPost, void* onPos
     //
     // Initialize backend EGL display
     //
-    fb->m_eglDisplay = s_egl.eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    /* krnlyng */
+    fb->m_eglDisplay = s_egl.eglGetDisplay((EGLNativeDisplayType) display);
+    //fb->m_eglDisplay = s_egl.eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (fb->m_eglDisplay == EGL_NO_DISPLAY) {
         ERR("Failed to Initialize backend EGL display\n");
         delete fb;
@@ -413,7 +415,6 @@ bool FrameBuffer::setupSubWindow(FBNativeWindowType p_window,
                                            p_x,p_y,p_width,p_height);
             if (fb->m_subWin) {
                 fb->m_nativeWindow = p_window;
-
                 // create EGLSurface from the generated subwindow
                 fb->m_eglSurface = s_egl.eglCreateWindowSurface(fb->m_eglDisplay, 
                                                     fb->m_eglConfig,
@@ -792,7 +793,6 @@ bool FrameBuffer::unbind_locked()
 
 bool FrameBuffer::post(HandleType p_colorbuffer, bool needLock)
 {
-    printf("FrameBuffer::post\n");
     if (needLock) m_lock.lock();
     bool ret = false;
 
@@ -850,7 +850,7 @@ bool FrameBuffer::post(HandleType p_colorbuffer, bool needLock)
                     m_statsNumFrames = 0;
                 }
             }
-            printf("swapping buffers\n");
+            //printf("swapping buffers\n");
             s_egl.eglSwapBuffers(m_eglDisplay, m_eglSurface);
         }
  

@@ -21,6 +21,8 @@ extern "C" {
 #endif
 
 #include "render_api_platform_types.h"
+/* krnlyng */
+#include <EGL/egl.h>
 
 /* If a function with this signature is passed to initOpenGLRenderer(),
  * it will be called by the renderer just before each new frame is displayed,
@@ -85,8 +87,9 @@ int setStreamMode(int mode);
 // This function is *NOT* thread safe and should be called first
 // to initialize the renderer after initLibrary().
 //
+/* krnlyng */
 bool initOpenGLRenderer(int width, int height, int portNum,
-                        OnPostFn onPost, void* onPostContext);
+                        OnPostFn onPost, void* onPostContext, EGLNativeDisplayType display);
 
 //
 // createOpenGLSubwindow -

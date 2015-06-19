@@ -77,7 +77,7 @@ bool initLibrary(void)
 }
 
 bool initOpenGLRenderer(int width, int height, int portNum,
-        OnPostFn onPost, void* onPostContext)
+        OnPostFn onPost, void* onPostContext, EGLNativeDisplayType display)
 {
 
     //
@@ -94,7 +94,7 @@ bool initOpenGLRenderer(int width, int height, int portNum,
     // initialize the renderer and listen to connections
     // on a thread in the current process.
     //
-    bool inited = FrameBuffer::initialize(width, height, onPost, onPostContext);
+    bool inited = FrameBuffer::initialize(width, height, onPost, onPostContext, display);
     if (!inited) {
         return false;
     }
