@@ -104,6 +104,15 @@ get_server_references(void) {
     }
 }
 
+static void
+create_opaque_region() {
+    region = wl_compositor_create_region(compositor);
+    wl_region_add(region, 0, 0,
+          960,
+          540);
+    wl_surface_set_opaque_region(surface, region);
+}
+
 int main(int argc, char *argv[])
 #endif
 {
@@ -167,6 +176,8 @@ int main(int argc, char *argv[])
     }
 
     wl_shell_surface_set_toplevel(shell_surface);
+
+    create_opaque_region();
 
     initLibrary();
 

@@ -114,7 +114,7 @@ private:
     EGLSurface m_eglSurface;
     EGLContext m_eglContext;
     EGLSurface m_pbufSurface;
-    EGLContext m_pbufContext;
+    //EGLContext m_pbufContext;
 
     EGLContext m_prevContext;
     EGLSurface m_prevReadSurf;

@@ -96,7 +96,7 @@ void FrameBuffer::finalize(){
         s_theFrameBuffer->m_contexts.clear();
         s_egl.eglMakeCurrent(s_theFrameBuffer->m_eglDisplay, NULL, NULL, NULL);
         s_egl.eglDestroyContext(s_theFrameBuffer->m_eglDisplay,s_theFrameBuffer->m_eglContext);
-        s_egl.eglDestroyContext(s_theFrameBuffer->m_eglDisplay,s_theFrameBuffer->m_pbufContext);
+        //s_egl.eglDestroyContext(s_theFrameBuffer->m_eglDisplay,s_theFrameBuffer->m_pbufContext);
         s_egl.eglDestroySurface(s_theFrameBuffer->m_eglDisplay,s_theFrameBuffer->m_pbufSurface);
         s_theFrameBuffer = NULL;
     }
@@ -219,17 +219,18 @@ bool FrameBuffer::initialize(int width, int height, OnPostFn onPost, void* onPos
     // it is more efficient on other platforms as well.
     //
     /* krnlyng test */
-    fb->m_pbufContext = s_egl.eglCreateContext(fb->m_eglDisplay, fb->m_eglConfig,
+/*    fb->m_pbufContext = s_egl.eglCreateContext(fb->m_eglDisplay, fb->m_eglConfig,
                                                EGL_NO_CONTEXT,
-                                               glContextAttribs);
+                                               glContextAttribs);*/
     //fb->m_pbufContext = s_egl.eglCreateContext(fb->m_eglDisplay, fb->m_eglConfig,
     //                                           fb->m_eglContext,
     //                                           glContextAttribs);
+    /*
     if (fb->m_pbufContext == EGL_NO_CONTEXT) {
         printf("Failed to create Pbuffer Context 0x%x\n", s_egl.eglGetError());
         delete fb;
         return false;
-    }
+    }*/
 
     //
     // create a 1x1 pbuffer surface which will be used for binding
@@ -375,7 +376,7 @@ FrameBuffer::FrameBuffer(int p_width, int p_height,
     m_eglDisplay(EGL_NO_DISPLAY),
     m_eglSurface(EGL_NO_SURFACE),
     m_eglContext(EGL_NO_CONTEXT),
-    m_pbufContext(EGL_NO_CONTEXT),
+    //m_pbufContext(EGL_NO_CONTEXT),
     m_prevContext(EGL_NO_CONTEXT),
     m_prevReadSurf(EGL_NO_SURFACE),
     m_prevDrawSurf(EGL_NO_SURFACE),
@@ -741,7 +742,7 @@ bool FrameBuffer::bind_locked()
     EGLSurface prevDrawSurf = s_egl.eglGetCurrentSurface(EGL_DRAW);
 
     if (!s_egl.eglMakeCurrent(m_eglDisplay, m_pbufSurface,
-                              m_pbufSurface, m_pbufContext)) {
+                              m_pbufSurface, m_eglContext)) {
         ERR("eglMakeCurrent failed\n");
         return false;
     }
