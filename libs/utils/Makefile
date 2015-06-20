@@ -16,7 +16,6 @@ SRC         := 	BasicHashtable.cpp \
 				StopWatch.cpp \
 				StringArray.cpp \
 				Threads.cpp \
-				Trace.cpp \
 				WorkQueue.cpp \
 				ZipUtils.cpp \
 				BufferedTextOutput.cpp \
