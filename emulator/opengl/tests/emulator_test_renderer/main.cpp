@@ -29,101 +29,137 @@
 #include "libOpenglRender/render_api.h"
 #include <EventInjector.h>
 
-static int convert_keysym(int sym); // forward
+//static int convert_keysym(int sym); // forward
 
 #ifdef __linux__
 /* krnylng */
 //#include <X11/Xlib.h>
-#endif
-#ifdef _WIN32
+struct touch {
+    struct wl_seat *w_seat;
+    struct wl_touch *w_touch;
+    EventInjector* injector;
+    bool down;
+    float x;
+    float y;
+};
 
-#include <winsock2.h>
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-#else
-/* krnlyng, thanks to http://jan.newmarch.name/Wayland/EGL */
-/*
-struct wl_display *the_wl_display = NULL;
-struct wl_compositor *compositor = NULL;
-struct wl_surface *surface;
-struct wl_egl_window *egl_window;
-struct wl_region *region;
-struct wl_shell *shell;
-struct wl_shell_surface *shell_surface;
+/* krnlyng EventInjector multitouch? */
 
-static void
-global_registry_handler(void *data, struct wl_registry *registry, uint32_t id,
-           const char *interface, uint32_t version)
+static void touch_handle_down(void *data, struct wl_touch *wl_touch,
+    uint32_t serial, uint32_t time, struct wl_surface *surface,
+    int32_t id, wl_fixed_t x_w, wl_fixed_t y_w)
 {
-//    printf("Got a registry event for %s id %d\n", interface, id);
-    if (strcmp(interface, "wl_compositor") == 0) {
-        compositor = (wl_compositor*)wl_registry_bind(registry, 
-                      id, 
-                      &wl_compositor_interface, 
-                      1);
-    } else if (strcmp(interface, "wl_shell") == 0) {
-    shell = (wl_shell*)wl_registry_bind(registry, id,
-                 &wl_shell_interface, 1);
-    
+    struct touch *the_touch = (struct touch*)data;
+
+    if(!the_touch->down)
+    {
+        the_touch->injector->sendMouseDown(wl_fixed_to_double(x_w), wl_fixed_to_double(y_w));
+        the_touch->down = 1;
+    }
+}
+ 
+static void touch_handle_up(void *data, struct wl_touch *wl_touch,
+  uint32_t serial, uint32_t time, int32_t id)
+{
+    struct touch *the_touch = (struct touch*)data;
+
+    if(the_touch->down)
+    {
+        the_touch->injector->sendMouseUp(the_touch->x, the_touch->y);
+        the_touch->down = 0;
+    }
+}
+ 
+static void
+touch_handle_motion(void *data, struct wl_touch *wl_touch,
+      uint32_t time, int32_t id, wl_fixed_t x_w, wl_fixed_t y_w)
+{
+    struct touch *the_touch = (struct touch*)data;
+
+    if(the_touch->down)
+    {
+        /* store new x, y for touch up */
+        the_touch->x = wl_fixed_to_double(x_w);
+        the_touch->y = wl_fixed_to_double(y_w);
+        the_touch->injector->sendMouseMotion(the_touch->x, the_touch->y);
     }
 }
 
-static void
-global_registry_remover(void *data, struct wl_registry *registry, uint32_t id)
+static void touch_handle_frame(void *data, struct wl_touch *wl_touch)
 {
-    printf("Got a registry losing event for %d\n", id);
+}
+ 
+static void touch_handle_cancel(void *data, struct wl_touch *wl_touch)
+{
+}
+
+static const struct wl_touch_listener touch_listener = {
+    touch_handle_down,
+    touch_handle_up,
+    touch_handle_motion,
+    touch_handle_frame,
+    touch_handle_cancel,
+};
+
+static void seat_handle_capabilities(void *data, struct wl_seat *the_seat, uint32_t caps)
+{
+    struct touch *the_touch = (struct touch*)data;
+
+    if(caps & WL_SEAT_CAPABILITY_TOUCH && !the_touch->w_touch)
+    {
+        printf("acquired wl_touch\n");
+        the_touch->w_touch = wl_seat_get_touch(the_touch->w_seat);
+        wl_touch_add_listener(the_touch->w_touch, &touch_listener, the_touch);
+    }
+    else if(!(caps & WL_SEAT_CAPABILITY_TOUCH) && !the_touch->w_touch)
+    {
+        printf("lost wl_touch\n");
+        wl_touch_destroy(the_touch->w_touch);
+        the_touch->w_touch = NULL;
+    }
+}
+
+static const struct wl_seat_listener seat_listener = {
+    seat_handle_capabilities
+};
+
+static void global_registry_handler(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
+{
+    struct touch *the_touch = (struct touch*)data;
+
+    if(strcmp(interface, "wl_seat") == 0)
+    {
+        the_touch->w_seat = (struct wl_seat*)wl_registry_bind(registry, name, &wl_seat_interface, 1);
+        wl_seat_add_listener(the_touch->w_seat, &seat_listener, the_touch);
+    }
+}
+
+static void global_registry_remover(void *data, struct wl_registry *registry, uint32_t id)
+{
+    printf("Got a registry loosing event for %d\n", id);
 }
 
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler,
     global_registry_remover
 };
+#endif
+#ifdef _WIN32
 
-static void
-get_server_references(void) {
-
-    the_wl_display = wl_display_connect(NULL);
-
-    if (the_wl_display == NULL) {
-        fprintf(stderr, "Can't connect to display\n");
-        exit(1);
-    }
-
-    printf("connected to display\n");
-
-    struct wl_registry *registry = wl_display_get_registry(the_wl_display);
-    wl_registry_add_listener(registry, &registry_listener, NULL);
-
-    wl_display_dispatch(the_wl_display);
-    wl_display_roundtrip(the_wl_display);
-
-    if (compositor == NULL || shell == NULL) {
-        fprintf(stderr, "Can't find compositor or shell\n");
-        exit(1);
-    } else {
-        fprintf(stderr, "Found compositor and shell\n");
-    }
-}
-
-static void
-create_opaque_region() {
-    region = wl_compositor_create_region(compositor);
-    wl_region_add(region, 0, 0,
-          winWidth,
-          winHeight);
-    wl_surface_set_opaque_region(surface, region);
-}
-*/
+#include <winsock2.h>
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int main(int argc, char *argv[])
 #endif
 {
+    struct touch *the_touch;
     int portNum = 22468;
     int winWidth = 320;
     int winHeight = 480;
     int width, height;
-    int mouseDown = 0;
+    //int mouseDown = 0;
     const char* env = getenv("ANDROID_WINDOW_SIZE");
     FBNativeWindowType windowId = NULL;
-    EventInjector* injector;
     int consolePort = 5554;
 
     if (env && sscanf(env, "%dx%d", &width, &height) == 2) {
@@ -131,34 +167,19 @@ int main(int argc, char *argv[])
         winHeight = height;
     }
 
-#ifdef __linux__
-    // some OpenGL implementations may call X functions
-    // it is safer to synchronize all X calls made by all the
-    // rendering threads. (although the calls we do are locked
-    // in the FrameBuffer singleton object).
-    /* krnlyng */
-    //XInitThreads();
-#endif
-
-    //
-    // Inialize SDL window
-    //
-    /* krnlyng */
-/*    if (SDL_Init(SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO)) {
-        fprintf(stderr,"SDL init failed: %s\n", SDL_GetError());
-        return -1;
-    }
-
-    SDL_Surface *surface = SDL_SetVideoMode(winWidth, winHeight, 32, SDL_SWSURFACE);
-    if (surface == NULL) {
-        fprintf(stderr,"Failed to set video mode: %s\n", SDL_GetError());
-        return -1;
-    }
-*/
+    printf("initializing egl, gles dispatch\n");
 
     initLibrary();
 
-    printf("initializing renderer process\n");
+    printf("initializing wayland input\n");
+
+    the_touch = (struct touch*)malloc(sizeof(struct touch));
+    the_touch->w_seat = NULL;
+    the_touch->w_touch = NULL;
+    the_touch->injector = new EventInjector(consolePort);
+    the_touch->down = false;
+    the_touch->x = 0;
+    the_touch->y = 0;
 
     struct wl_display *the_wl_display = wl_display_connect(0);
     if(the_wl_display == NULL)
@@ -166,87 +187,28 @@ int main(int argc, char *argv[])
         printf("Could not connect to display\n");
         return -1;
     }
+    struct wl_registry *registry = wl_display_get_registry(the_wl_display);
+    wl_registry_add_listener(registry, &registry_listener, the_touch);
 
-    /* krnlyng do egl init here */
+    wl_display_dispatch(the_wl_display);
+    wl_display_roundtrip(the_wl_display);
+
+    if(the_touch->w_seat == NULL || the_touch->w_touch == NULL)
+    {
+        fprintf(stderr, "failed to get seat or touch\n");
+        return -1;
+    }
+
+    printf("initializing renderer process\n");
+
+    //
+    // initialize OpenGL renderer to render in our window
+    //
     bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0, the_wl_display);
     if (!inited) {
         return -1;
     }
     printf("renderer process started\n");
-
-    /* TODO */
-    SDL_Window *sdl_win = NULL;
-/*
-    SDL_Window *sdl_win = SDL_CreateWindowFrom((void*)windowId);
-    if(sdl_win == NULL)
-    {
-        fprintf(stderr, "SDL_CreateWindowFrom failed\n");
-        return -1;
-    }
-*/
-/*
-    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-        fprintf(stderr, "SDL init failed %s\n", SDL_GetError());
-        return -1;
-    }
-
-    SDL_Window *window = SDL_CreateWindow("renderer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL);
-    if(window == NULL)
-    {
-        fprintf(stderr, "failed to create SDL2 window\n");
-        return -1;
-    }
-
-    SDL_ShowCursor(0);
-*/
-    SDL_SysWMinfo  wminfo;
-    memset(&wminfo, 0, sizeof(wminfo));
-    /* krnlyng */
-    SDL_GetWindowWMInfo(sdl_win, &wminfo);
-#ifdef _WIN32
-    windowId = wminfo.window;
-    WSADATA  wsaData;
-    int      rc = WSAStartup( MAKEWORD(2,2), &wsaData);
-    if (rc != 0) {
-            printf( "could not initialize Winsock\n" );
-    }
-#elif __linux__
-    /* krnylng */
-    //windowId = (FBNativeWindowType)wminfo.info.wl.surface;
-#elif __APPLE__
-    windowId = wminfo.nsWindowPtr;
-#endif
-
-/*
-    Display *x_display = XOpenDisplay(NULL);
-    if(x_display == NULL)
-    {
-        printf("cannot connect to the X server\n");
-        return -1;
-    }
-    Window root = DefaultRootWindow(x_display);
-
-    XSetWindowAttributes attr;
-    attr.background_pixel = XWhitePixel(x_display, DefaultScreen(x_display));
-
-    windowId = XCreateWindow(x_display, root,
-                        0, 0, winWidth, winHeight, 0,
-                        CopyFromParent, InputOutput,
-                        CopyFromParent, CWEventMask,
-                        &attr);
-
-    SDL_Window *sdl_win = SDL_CreateWindowFrom((void*)windowId);*/
-
-
-    //
-    // initialize OpenGL renderer to render in our window
-    //
-    /*
-    bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0);
-    if (!inited) {
-        return -1;
-    }
-    printf("renderer process started\n");*/
 
     float zRot = 0.0f;
     inited = createOpenGLSubwindow(windowId, 0, 0,
@@ -256,18 +218,14 @@ int main(int argc, char *argv[])
         stopOpenGLRenderer();
         return -1;
     }
-    int subwinWidth = winWidth;
-    int subwinHeight = winHeight;
-
-    injector = new EventInjector(consolePort);
-
-    // Just wait until the window is closed
-    SDL_Event ev;
+    //int subwinWidth = winWidth;
+    //int subwinHeight = winHeight;
 
     for (;;) {
-        injector->wait(1000/15);
-        injector->poll();
+        the_touch->injector->wait(1000/15);
+        the_touch->injector->poll();
 
+#if 0
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
             case SDL_MOUSEBUTTONDOWN:
@@ -338,6 +296,7 @@ int main(int argc, char *argv[])
                 goto EXIT;
             }
         }
+#endif
         /* krnlyng */
         if(wl_display_dispatch(the_wl_display) < 0)
         {
@@ -345,7 +304,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
-EXIT:
+//EXIT:
     //
     // stop the renderer
     //
@@ -355,9 +314,11 @@ EXIT:
     /* krnlyng */
     wl_display_disconnect(the_wl_display);
 
+    free(the_touch);
+
     return 0;
 }
-
+#if 0
 static int convert_keysym(int sym)
 {
 #define  EE(x,y)   SDLK_##x, EventInjector::KEY_##y,
@@ -379,3 +340,5 @@ static int convert_keysym(int sym)
     }
     return sym;
 }
+#endif
+
