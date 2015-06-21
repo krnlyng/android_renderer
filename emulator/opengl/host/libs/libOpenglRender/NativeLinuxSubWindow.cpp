@@ -40,11 +40,11 @@ struct wl_shell *shell;
 struct wl_shell_surface *shell_surface;
 
 static void
-create_opaque_region() {
+create_opaque_region(int width, int height) {
     region = wl_compositor_create_region(compositor);
     wl_region_add(region, 0, 0,
-          960,
-          540);
+          width,
+          height);
     wl_surface_set_opaque_region(surface, region);
 }
 
@@ -120,7 +120,7 @@ EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
     shell_surface = wl_shell_get_shell_surface(shell, surface);
     wl_shell_surface_set_toplevel(shell_surface);
 
-    create_opaque_region();
+    create_opaque_region(width, height);
 
     EGLNativeWindowType win = wl_egl_window_create(surface, width, height);
     if(win == EGL_NO_SURFACE || win == NULL)

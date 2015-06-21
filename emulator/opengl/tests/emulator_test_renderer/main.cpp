@@ -108,8 +108,8 @@ static void
 create_opaque_region() {
     region = wl_compositor_create_region(compositor);
     wl_region_add(region, 0, 0,
-          960,
-          540);
+          winWidth,
+          winHeight);
     wl_surface_set_opaque_region(surface, region);
 }
 */
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
     attr.background_pixel = XWhitePixel(x_display, DefaultScreen(x_display));
 
     windowId = XCreateWindow(x_display, root,
-                        0, 0, 960, 540, 0,
+                        0, 0, winWidth, winHeight, 0,
                         CopyFromParent, InputOutput,
                         CopyFromParent, CWEventMask,
                         &attr);
