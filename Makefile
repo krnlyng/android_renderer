@@ -35,9 +35,9 @@ endif
 	make -C emulator/opengl/host/libs/GLESv1_dec
 	make -C emulator/opengl/host/libs/GLESv2_dec
 	make -C emulator/opengl/host/libs/renderControl_dec
-	make -C emulator/opengl/host/libs/Translator/EGL
-	make -C emulator/opengl/host/libs/Translator/GLES_CM
-	make -C emulator/opengl/host/libs/Translator/GLES_V2
+#	make -C emulator/opengl/host/libs/Translator/EGL
+#	make -C emulator/opengl/host/libs/Translator/GLES_CM
+#	make -C emulator/opengl/host/libs/Translator/GLES_V2
 	make -C emulator/opengl/host/libs/libOpenglRender
 	make -C emulator/opengl/host/renderer
 	make -C emulator/opengl/tests/emulator_test_renderer
@@ -56,9 +56,9 @@ clean:
 	make -C emulator/opengl/host/libs/GLESv1_dec clean
 	make -C emulator/opengl/host/libs/GLESv2_dec clean
 	make -C emulator/opengl/host/libs/renderControl_dec clean
-	make -C emulator/opengl/host/libs/Translator/EGL clean
-	make -C emulator/opengl/host/libs/Translator/GLES_CM clean
-	make -C emulator/opengl/host/libs/Translator/GLES_V2 clean
+#	make -C emulator/opengl/host/libs/Translator/EGL clean
+#	make -C emulator/opengl/host/libs/Translator/GLES_CM clean
+#	make -C emulator/opengl/host/libs/Translator/GLES_V2 clean
 	make -C emulator/opengl/host/libs/libOpenglRender clean
 	make -C emulator/opengl/host/renderer clean
 	make -C emulator/opengl/tests/emulator_test_renderer clean
