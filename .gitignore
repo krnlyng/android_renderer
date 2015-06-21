@@ -1,0 +1,9 @@
+*.so
+emugen
+emulator_test_renderer
+emulator_renderer
+*.d
+*.o
+libGLESv1_dec_intermediates/*
+libGLESv2_dec_intermediates/*
+lib_renderControl_dec_intermediates/*
