@@ -38,13 +38,13 @@ extern "C" {
 ** If the property read fails or returns an empty value, the default
 ** value is used (if nonnull).
 */
-int property_get(const char *key, char *value, const char *default_value);
+int ar_property_get(const char *key, char *value, const char *default_value);
 
 /* property_set: returns 0 on success, < 0 on failure
 */
-int property_set(const char *key, const char *value);
+int ar_property_set(const char *key, const char *value);
     
-int property_list(void (*propfn)(const char *key, const char *value, void *cookie), void *cookie);    
+int ar_property_list(void (*propfn)(const char *key, const char *value, void *cookie), void *cookie);    
 
 
 #ifdef HAVE_SYSTEM_PROPERTY_SERVER

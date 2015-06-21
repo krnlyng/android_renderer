@@ -101,7 +101,7 @@ int  main(void)
         }
         *q++ = '\0';
 
-        if (property_set(temp, q) < 0) {
+        if (ar_property_set(temp, q) < 0) {
             DD("could not set property '%s' to '%s'", temp, q);
         } else {
             count += 1;

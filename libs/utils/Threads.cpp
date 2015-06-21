@@ -73,7 +73,7 @@ static bool gDoSchedulingGroup = true;
 
 static void checkDoSchedulingGroup(void) {
     char buf[PROPERTY_VALUE_MAX];
-    int len = property_get("debug.sys.noschedgroups", buf, "");
+    int len = ar_property_get("debug.sys.noschedgroups", buf, "");
     if (len > 0) {
         int temp;
         if (sscanf(buf, "%d", &temp) == 1) {

@@ -57,7 +57,7 @@ void Tracer::init() {
 
 void Tracer::loadSystemProperty() {
     char value[PROPERTY_VALUE_MAX];
-    property_get("debug.atrace.tags.enableflags", value, "0");
+    ar_property_get("debug.atrace.tags.enableflags", value, "0");
     sEnabledTags = (strtoll(value, NULL, 0) & ATRACE_TAG_VALID_MASK)
             | ATRACE_TAG_ALWAYS;
 }

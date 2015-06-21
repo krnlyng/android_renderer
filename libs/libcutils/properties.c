@@ -31,12 +31,12 @@
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #include <sys/_system_properties.h>
 
-int property_set(const char *key, const char *value)
+int ar_property_set(const char *key, const char *value)
 {
     return __system_property_set(key, value);
 }
 
-int property_get(const char *key, char *value, const char *default_value)
+int ar_property_get(const char *key, char *value, const char *default_value)
 {
     int len;
 
@@ -52,7 +52,7 @@ int property_get(const char *key, char *value, const char *default_value)
     return len;
 }
 
-int property_list(void (*propfn)(const char *key, const char *value, void *cookie), 
+int ar_property_list(void (*propfn)(const char *key, const char *value, void *cookie), 
                   void *cookie)
 {
     char name[PROP_NAME_MAX];
@@ -134,7 +134,7 @@ static void init(void)
     }
 }
 
-int property_get(const char *key, char *value, const char *default_value)
+int ar_property_get(const char *key, char *value, const char *default_value)
 {
     char sendBuf[1+PROPERTY_KEY_MAX];
     char recvBuf[1+PROPERTY_VALUE_MAX];
@@ -201,7 +201,7 @@ int property_get(const char *key, char *value, const char *default_value)
 }
 
 
-int property_set(const char *key, const char *value)
+int ar_property_set(const char *key, const char *value)
 {
     char sendBuf[1+PROPERTY_KEY_MAX+PROPERTY_VALUE_MAX];
     char recvBuf[1];
@@ -238,7 +238,7 @@ int property_set(const char *key, const char *value)
     return 0;
 }
 
-int property_list(void (*propfn)(const char *key, const char *value, void *cookie), 
+int ar_property_list(void (*propfn)(const char *key, const char *value, void *cookie), 
                   void *cookie)
 {
     //ALOGV("PROPERTY LIST\n");
@@ -257,7 +257,7 @@ int property_list(void (*propfn)(const char *key, const char *value, void *cooki
 
 static mutex_t  env_lock = MUTEX_INITIALIZER;
 
-int property_get(const char *key, char *value, const char *default_value)
+int ar_property_get(const char *key, char *value, const char *default_value)
 {
     char ename[PROPERTY_KEY_MAX + 6];
     char *p;
@@ -291,7 +291,7 @@ int property_get(const char *key, char *value, const char *default_value)
 }
 
 
-int property_set(const char *key, const char *value)
+int ar_property_set(const char *key, const char *value)
 {
     char ename[PROPERTY_KEY_MAX + 6];
     char *p;
@@ -321,7 +321,7 @@ int property_set(const char *key, const char *value)
     return r;
 }
 
-int property_list(void (*propfn)(const char *key, const char *value, void *cookie), 
+int ar_property_list(void (*propfn)(const char *key, const char *value, void *cookie), 
                   void *cookie)
 {
     return 0;
