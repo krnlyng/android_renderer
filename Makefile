@@ -1,5 +1,5 @@
 
-EMUGEN := emulator/opengl/host/tools/emugen/emugen
+EMUGEN := ./emugen
 
 .PHONY: build clean
 

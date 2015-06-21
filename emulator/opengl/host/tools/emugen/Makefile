@@ -1,4 +1,4 @@
-OUT         := emugen
+OUT         := ../../../../../emugen
 SRC         := ApiGen.cpp EntryPoint.cpp TypeFactory.cpp main.cpp strUtils.cpp
 OBJ         := $(patsubst %.c, %.o, $(filter %.c, $(SRC)))
 OBJ         += $(patsubst %.cpp, %.o, $(filter %.cpp, $(SRC)))
