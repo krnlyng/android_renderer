@@ -105,13 +105,14 @@ InitConfigStatus FBConfig::initConfigList(FrameBuffer *fb)
         if (!(surfaceType & EGL_PBUFFER_BIT)) continue;
 
         //
-        // Filter out not RGB configs
+        // Filter out not RGBA configs
         //
-        EGLint redSize, greenSize, blueSize;
+        EGLint redSize, greenSize, blueSize, alphaSize;
         s_egl.eglGetConfigAttrib(dpy, configs[i], EGL_RED_SIZE, &redSize);
         s_egl.eglGetConfigAttrib(dpy, configs[i], EGL_BLUE_SIZE, &blueSize);
         s_egl.eglGetConfigAttrib(dpy, configs[i], EGL_GREEN_SIZE, &greenSize);
-        if (redSize==0 || greenSize==0 || blueSize==0) continue;
+        s_egl.eglGetConfigAttrib(dpy, configs[i], EGL_ALPHA_SIZE, &alphaSize);
+        if (redSize==0 || greenSize==0 || blueSize==0 || alphaSize == 0) continue;
 
         s_fbConfigs[j++] = new FBConfig(dpy, configs[i]);
     }
