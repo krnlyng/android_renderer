@@ -20,20 +20,26 @@
 #include <SDL2/SDL_syswm.h>
 
 #include <EGL/egl.h>
+#ifdef X11
+#include <X11/Xlib.h>
+#else
 #include <wayland-egl.h>
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
 #include "libOpenglRender/render_api.h"
 #include <EventInjector.h>
 
-//static int convert_keysym(int sym); // forward
+#ifdef X11
+static int convert_keysym(int sym); // forward
+#endif
 
 #ifdef __linux__
 /* krnylng */
-//#include <X11/Xlib.h>
+#ifndef X11
 struct touch {
     struct wl_seat *w_seat;
     struct wl_touch *w_touch;
@@ -143,6 +149,7 @@ static const struct wl_registry_listener registry_listener = {
     global_registry_handler,
     global_registry_remover
 };
+#endif  //X11
 #endif
 #ifdef _WIN32
 
@@ -152,7 +159,9 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 int main(int argc, char *argv[])
 #endif
 {
+#ifndef X11
     struct touch *the_touch;
+#endif
     int portNum = 22468;
     int winWidth = 320;
     int winHeight = 480;
@@ -171,8 +180,8 @@ int main(int argc, char *argv[])
 
     initLibrary();
 
+#ifndef X11
     printf("initializing wayland input\n");
-
     the_touch = (struct touch*)malloc(sizeof(struct touch));
     the_touch->w_seat = NULL;
     the_touch->w_touch = NULL;
@@ -198,12 +207,16 @@ int main(int argc, char *argv[])
         fprintf(stderr, "failed to get seat or touch\n");
         return -1;
     }
-
+#endif
     printf("initializing renderer process\n");
 
     //
     // initialize OpenGL renderer to render in our window
     //
+#ifdef X11
+    Display *the_wl_display;
+    the_wl_display = XOpenDisplay(NULL);
+#endif
     bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0, the_wl_display);
     if (!inited) {
         return -1;
@@ -218,14 +231,20 @@ int main(int argc, char *argv[])
         stopOpenGLRenderer();
         return -1;
     }
-    //int subwinWidth = winWidth;
-    //int subwinHeight = winHeight;
+#ifdef X11
+    int subwinWidth = winWidth;
+    int subwinHeight = winHeight;
+    EventInjector* injector = new EventInjector(consolePort);
+    SDL_Event ev;
+    int mouseDown = 0;
+#endif
 
     for (;;) {
+#ifndef X11
         the_touch->injector->wait(1000/15);
         the_touch->injector->poll();
 
-#if 0
+#else
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
             case SDL_MOUSEBUTTONDOWN:
@@ -297,28 +316,35 @@ int main(int argc, char *argv[])
             }
         }
 #endif
+#ifndef X11
         /* krnlyng */
         if(wl_display_dispatch(the_wl_display) < 0)
         {
             printf("wl_display_dispatch failed\n");
             break;
         }
+#endif
     }
-//EXIT:
+#ifdef X11
+EXIT:
+#endif
     //
     // stop the renderer
     //
     printf("stopping the renderer process\n");
     stopOpenGLRenderer();
-
+#ifdef X11
+    delete injector;
+#else
     /* krnlyng */
     wl_display_disconnect(the_wl_display);
 
     free(the_touch);
 
     return 0;
+#endif
 }
-#if 0
+#ifdef X11
 static int convert_keysym(int sym)
 {
 #define  EE(x,y)   SDLK_##x, EventInjector::KEY_##y,

@@ -31,7 +31,11 @@ static GL_FUNC_PTR getGLFuncAddress(const char *funcName) {
     GL_FUNC_PTR ret = NULL;
 #ifdef __linux__
     /* krnlyng */
+    #ifdef X11
+    static osUtils::dynLibrary* libGL = osUtils::dynLibrary::open("libGLES_CM.so");
+    #else
     static osUtils::dynLibrary* libGL = osUtils::dynLibrary::open("libGLESv1_CM.so");
+    #endif
     static osUtils::dynLibrary* libEGL = osUtils::dynLibrary::open("libEGL.so");
     static void *(*host_eglGetProcAddress)(const char *procname) = libEGL->findSymbol("eglGetProcAddress");
     ret = (GL_FUNC_PTR)host_eglGetProcAddress((const GLubyte*)funcName);

@@ -28,8 +28,11 @@
 
 #ifdef __linux__
 /* krnlyng */
+#ifndef X11
 #include <wayland-client.h>
-//#include <X11/Xlib.h>
+#else
+#include <X11/Xlib.h>
+#endif
 #endif
 
 static void printUsage(const char *progName)

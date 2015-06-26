@@ -26,11 +26,19 @@ typedef HWND    FBNativeWindowType;
 #elif defined(__linux__)
 
 /* krnlyng */
+#ifndef X11
 #include <wayland-client.h>
-//#include <X11/Xlib.h>
-//#include <X11/Xutil.h>
 
 typedef wl_surface*   FBNativeWindowType;
+
+#else
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+typedef Window   FBNativeWindowType;
+
+#endif
+
 
 #elif defined(__APPLE__)
 

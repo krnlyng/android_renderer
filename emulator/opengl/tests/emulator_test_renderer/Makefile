@@ -7,7 +7,7 @@ DEP         := $(OBJ:.o=.d)
 CFLAGS      := -Wall -std=gnu99
 CXXFLAGS    := -Wall
 LDFLAGS     := -L../../../..
-LDLIBS      := -lOpenglRender -lGLESv1_dec -lGLESv2_dec -lOpenglOsUtils -lOpenglCodecCommon -l_renderControl_dec -lutils -lrt -lz -lpthread -lSDL2 `pkg-config --libs wayland-egl` `pkg-config --libs wayland-client`
+LDLIBS      := -lOpenglRender -lGLESv1_dec -lGLESv2_dec -lOpenglOsUtils -lOpenglCodecCommon -l_renderControl_dec -lutils -lrt -lz -lpthread -lSDL2
 
 CFLAGS		+= -DHAVE_PTHREADS -DHAVE_SYS_UIO_H
 CXXFLAGS	+= -DHAVE_PTHREADS -DHAVE_SYS_UIO_H
@@ -17,6 +17,7 @@ CXXFLAGS	+= -I../../host/include -I../event_injector
 
 DEBUG       ?= 0
 VERBOSE     ?= 0
+X11			?= 0
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -O0 -g3 -ggdb -pg
@@ -30,6 +31,14 @@ ifeq ($(VERBOSE),1)
 else
 	MSG := @echo
 	CMD := @
+endif
+
+ifeq ($(X11),1)
+	CFLAGS += -DX11
+	CXXFLAGS += -DX11
+	LDLIBS += -lX11
+else
+	LDLIBS += `pkg-config --libs wayland-egl` `pkg-config --libs wayland-client`
 endif
 
 .PHONY: release clean

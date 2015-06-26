@@ -15,6 +15,7 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "errors.h"
 #include "EntryPoint.h"
 #include "strUtils.h"
