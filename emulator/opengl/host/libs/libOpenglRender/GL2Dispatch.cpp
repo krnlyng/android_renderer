@@ -15,6 +15,7 @@
 */
 #ifdef WITH_GLES2
 #include "GL2Dispatch.h"
+#include "EGLDispatch.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "osDynLibrary.h"
@@ -45,6 +46,10 @@ bool init_gl2_dispatch()
     // init the GLES dispatch table
     //
     s_gl2.initDispatchByName( gl2_dispatch_get_proc_func, NULL );
+
+    s_gl2.glEGLImageTargetTexture2DOES = (void*)s_egl.eglGetProcAddress("glEGLImageTargetTexture2DOES");
+    s_gl2.glEGLImageTargetRenderbufferStorageOES = (void*)s_egl.eglGetProcAddress("glEGLImageTargetRenderbufferStorageOES");
+
     s_gl2_enabled = true;
     return true;
 }

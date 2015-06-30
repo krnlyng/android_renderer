@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 #include "GLDispatch.h"
+#include "EGLDispatch.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "osDynLibrary.h"
@@ -193,8 +194,8 @@ bool init_gl_dispatch()
     s_gl.glDrawTexxvOES = (glDrawTexxvOES_t) s_gles_lib->findSymbol("glDrawTexxvOES");
     s_gl.glDrawTexfOES = (glDrawTexfOES_t) s_gles_lib->findSymbol("glDrawTexfOES");
     s_gl.glDrawTexfvOES = (glDrawTexfvOES_t) s_gles_lib->findSymbol("glDrawTexfvOES");
-    s_gl.glEGLImageTargetTexture2DOES = (glEGLImageTargetTexture2DOES_t) s_gles_lib->findSymbol("glEGLImageTargetTexture2DOES");
-    s_gl.glEGLImageTargetRenderbufferStorageOES = (glEGLImageTargetRenderbufferStorageOES_t) s_gles_lib->findSymbol("glEGLImageTargetRenderbufferStorageOES");
+    //s_gl.glEGLImageTargetTexture2DOES = (glEGLImageTargetTexture2DOES_t) s_gles_lib->findSymbol("glEGLImageTargetTexture2DOES");
+    //s_gl.glEGLImageTargetRenderbufferStorageOES = (glEGLImageTargetRenderbufferStorageOES_t) s_gles_lib->findSymbol("glEGLImageTargetRenderbufferStorageOES");
     s_gl.glAlphaFuncxOES = (glAlphaFuncxOES_t) s_gles_lib->findSymbol("glAlphaFuncxOES");
     s_gl.glClearColorxOES = (glClearColorxOES_t) s_gles_lib->findSymbol("glClearColorxOES");
     s_gl.glClearDepthxOES = (glClearDepthxOES_t) s_gles_lib->findSymbol("glClearDepthxOES");
@@ -308,6 +309,9 @@ bool init_gl_dispatch()
     s_gl.glExtGetProgramBinarySourceQCOM = (glExtGetProgramBinarySourceQCOM_t) s_gles_lib->findSymbol("glExtGetProgramBinarySourceQCOM");
     s_gl.glStartTilingQCOM = (glStartTilingQCOM_t) s_gles_lib->findSymbol("glStartTilingQCOM");
     s_gl.glEndTilingQCOM = (glEndTilingQCOM_t) s_gles_lib->findSymbol("glEndTilingQCOM");
+
+    s_gl.glEGLImageTargetTexture2DOES = (void*)s_egl.eglGetProcAddress("glEGLImageTargetTexture2DOES");
+    s_gl.glEGLImageTargetRenderbufferStorageOES = (void*)s_egl.eglGetProcAddress("glEGLImageTargetRenderbufferStorageOES");
 
     return true;
 }
