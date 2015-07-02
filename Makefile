@@ -4,7 +4,7 @@ EMUGEN := ./emugen
 .PHONY: build clean
 
 build:
-	make -C emulator/opengl/host/tools/emugen
+	$(MAKE) -C emulator/opengl/host/tools/emugen
 ifeq ("$(wildcard lib_renderControl_dec_intermediates)", "")
 	mkdir -p lib_renderControl_dec_intermediates
 	$(EMUGEN) -D lib_renderControl_dec_intermediates -i emulator/opengl/system/renderControl_enc renderControl
@@ -29,37 +29,37 @@ endif
 #	mkdir -p libGLESv1_enc_intermediates
 #	$(EMUGEN) -E libGLESv1_enc_intermediates -i emulator/opengl/system/GLESv1_enc gl
 #endif
-	make -C libs/utils
-	make -C emulator/opengl/shared/OpenglOsUtils
-	make -C emulator/opengl/shared/OpenglCodecCommon -f Makefile.krnlyng
-	make -C emulator/opengl/host/libs/GLESv1_dec
-	make -C emulator/opengl/host/libs/GLESv2_dec
-	make -C emulator/opengl/host/libs/renderControl_dec
-#	make -C emulator/opengl/host/libs/Translator/EGL
-#	make -C emulator/opengl/host/libs/Translator/GLES_CM
-#	make -C emulator/opengl/host/libs/Translator/GLES_V2
-	make -C emulator/opengl/host/libs/libOpenglRender
-	make -C emulator/opengl/host/renderer
-	make -C emulator/opengl/tests/emulator_test_renderer
+	$(MAKE) -C libs/utils
+	$(MAKE) -C emulator/opengl/shared/OpenglOsUtils
+	$(MAKE) -C emulator/opengl/shared/OpenglCodecCommon -f Makefile.krnlyng
+	$(MAKE) -C emulator/opengl/host/libs/GLESv1_dec
+	$(MAKE) -C emulator/opengl/host/libs/GLESv2_dec
+	$(MAKE) -C emulator/opengl/host/libs/renderControl_dec
+#	$(MAKE) -C emulator/opengl/host/libs/Translator/EGL
+#	$(MAKE) -C emulator/opengl/host/libs/Translator/GLES_CM
+#	$(MAKE) -C emulator/opengl/host/libs/Translator/GLES_V2
+	$(MAKE) -C emulator/opengl/host/libs/libOpenglRender
+	$(MAKE) -C emulator/opengl/host/renderer
+	$(MAKE) -C emulator/opengl/tests/emulator_test_renderer
 
 clean:
-	make -C emulator/opengl/host/tools/emugen clean
+	$(MAKE) -C emulator/opengl/host/tools/emugen clean
 	rm -rf lib_renderControl_dec_intermediates
 	rm -rf libGLESv2_dec_intermediates
 	rm -rf libGLESv1_dec_intermediates
 #	rm -rf lib_renderControl_enc_intermediates
 #	rm -rf libGLESv2_enc_intermediates
 #	rm -rf libGLESv1_enc_intermediates
-	make -C libs/utils clean
-	make -C emulator/opengl/shared/OpenglOsUtils clean
-	make -C emulator/opengl/shared/OpenglCodecCommon -f Makefile.krnlyng clean
-	make -C emulator/opengl/host/libs/GLESv1_dec clean
-	make -C emulator/opengl/host/libs/GLESv2_dec clean
-	make -C emulator/opengl/host/libs/renderControl_dec clean
-#	make -C emulator/opengl/host/libs/Translator/EGL clean
-#	make -C emulator/opengl/host/libs/Translator/GLES_CM clean
-#	make -C emulator/opengl/host/libs/Translator/GLES_V2 clean
-	make -C emulator/opengl/host/libs/libOpenglRender clean
-	make -C emulator/opengl/host/renderer clean
-	make -C emulator/opengl/tests/emulator_test_renderer clean
+	$(MAKE) -C libs/utils clean
+	$(MAKE) -C emulator/opengl/shared/OpenglOsUtils clean
+	$(MAKE) -C emulator/opengl/shared/OpenglCodecCommon -f Makefile.krnlyng clean
+	$(MAKE) -C emulator/opengl/host/libs/GLESv1_dec clean
+	$(MAKE) -C emulator/opengl/host/libs/GLESv2_dec clean
+	$(MAKE) -C emulator/opengl/host/libs/renderControl_dec clean
+#	$(MAKE) -C emulator/opengl/host/libs/Translator/EGL clean
+#	$(MAKE) -C emulator/opengl/host/libs/Translator/GLES_CM clean
+#	$(MAKE) -C emulator/opengl/host/libs/Translator/GLES_V2 clean
+	$(MAKE) -C emulator/opengl/host/libs/libOpenglRender clean
+	$(MAKE) -C emulator/opengl/host/renderer clean
+	$(MAKE) -C emulator/opengl/tests/emulator_test_renderer clean
 
