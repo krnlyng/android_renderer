@@ -1,1 +1,1 @@
-ANDROID_WINDOW_SIZE=960x540 LD_LIBRARY_PATH=. ./emulator_test_renderer 
+ANDROID_WINDOW_SIZE=540x960 LD_LIBRARY_PATH=. ./emulator_test_renderer
