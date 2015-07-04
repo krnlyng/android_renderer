@@ -63,7 +63,11 @@ void *gl2_dispatch_get_proc_func(const char *name, void *userData)
     if (!s_gles2_lib) {
         return NULL;
     }
-    return (void *)s_gles2_lib->findSymbol(name);
+
+    void *ret = (void*)s_gles2_lib->findSymbol(name);
+    if(ret) return ret;
+
+    return (void*)s_egl.eglGetProcAddress(name);
 }
 
 #endif
