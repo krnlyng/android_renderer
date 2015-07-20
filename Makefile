@@ -39,7 +39,7 @@ endif
 #	$(MAKE) -C emulator/opengl/host/libs/Translator/GLES_CM
 #	$(MAKE) -C emulator/opengl/host/libs/Translator/GLES_V2
 	$(MAKE) -C emulator/opengl/host/libs/libOpenglRender
-	$(MAKE) -C emulator/opengl/host/renderer
+#	$(MAKE) -C emulator/opengl/host/renderer
 	$(MAKE) -C emulator/opengl/tests/emulator_test_renderer
 
 clean:
@@ -60,6 +60,6 @@ clean:
 #	$(MAKE) -C emulator/opengl/host/libs/Translator/GLES_CM clean
 #	$(MAKE) -C emulator/opengl/host/libs/Translator/GLES_V2 clean
 	$(MAKE) -C emulator/opengl/host/libs/libOpenglRender clean
-	$(MAKE) -C emulator/opengl/host/renderer clean
+#	$(MAKE) -C emulator/opengl/host/renderer clean
 	$(MAKE) -C emulator/opengl/tests/emulator_test_renderer clean
 
