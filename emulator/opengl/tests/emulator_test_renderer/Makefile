@@ -4,8 +4,8 @@ OBJ         := $(patsubst %.c, %.o, $(filter %.c, $(SRC)))
 OBJ         += $(patsubst %.cpp, %.o, $(filter %.cpp, $(SRC)))
 DEP         := $(OBJ:.o=.d)
 
-CFLAGS      := -Wall -std=gnu99
-CXXFLAGS    := -Wall
+CFLAGS      := -Wall -std=gnu99 -I../../../../include
+CXXFLAGS    := -Wall -I../../../../include
 LDFLAGS     := -L../../../..
 LDLIBS      := -lOpenglRender -lGLESv1_dec -lGLESv2_dec -lOpenglOsUtils -lOpenglCodecCommon -l_renderControl_dec -lutils -lrt -lz -lpthread -lSDL2 `pkg-config --libs wayland-egl` `pkg-config --libs wayland-client`
 

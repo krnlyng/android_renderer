@@ -18,8 +18,8 @@ OBJ         := $(patsubst %.c, %.o, $(filter %.c, $(SRC)))
 OBJ         += $(patsubst %.cpp, %.o, $(filter %.cpp, $(SRC)))
 DEP         := $(OBJ:.o=.d)
 
-CFLAGS      := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2 -fpermissive
-CXXFLAGS    := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2 -fpermissive
+CFLAGS      := -marm -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2 -fpermissive
+CXXFLAGS    := -marm -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2 -fpermissive
 LDFLAGS     := -L../../../../..
 LDLIBS      := -lOpenglCodecCommon `pkg-config --libs wayland-egl` `pkg-config --libs wayland-client`
 
