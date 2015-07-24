@@ -33,11 +33,7 @@ static Bool WaitForMapNotify(Display *d, XEvent *e, char *arg)
 #endif
 
 /* krnlyng, thanks to http://jan.newmarch.name/Wayland/EGL */
-#ifdef X11
-Display *s_display = NULL;
-Display *display_out[1];
-
-#else
+#ifndef X11
 struct wl_display *the_display = NULL;
 struct wl_compositor *compositor = NULL;
 struct wl_surface *surface;
@@ -138,18 +134,12 @@ EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
 
     return win;
 #else
-   
-   // The call to this function is protected by a lock
-   // in FrameBuffer so it is safe to check and initialize s_display here
-   if (!s_display) s_display = XOpenDisplay(NULL);
-   *display_out = s_display;
-
     XSetWindowAttributes wa;
     wa.event_mask = StructureNotifyMask;
-    Window win = XCreateWindow(*display_out,p_window,x,y, width,height,0,CopyFromParent,CopyFromParent,CopyFromParent,CWEventMask,&wa);
-    XMapWindow(*display_out,win);
+    Window win = XCreateWindow(display,p_window,x,y, width,height,0,CopyFromParent,CopyFromParent,CopyFromParent,CWEventMask,&wa);
+    XMapWindow(display,win);
     XEvent e;
-    XIfEvent(*display_out, &e, WaitForMapNotify, (char *)win);
+    XIfEvent(display, &e, WaitForMapNotify, (char *)win);
     return win;
 #endif
 }
