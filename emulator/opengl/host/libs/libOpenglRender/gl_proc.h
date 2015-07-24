@@ -20,6 +20,10 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GLES/glext.h>
 
+#if DEFINE_GLCHAR
+typedef char GLchar;
+#endif
+
 typedef void (GL_APIENTRY *glAlphaFunc_t) (GLenum, GLclampf);
 typedef void (GL_APIENTRY *glClearColor_t) (GLclampf, GLclampf, GLclampf, GLclampf);
 typedef void (GL_APIENTRY *glClearDepthf_t) (GLclampf);

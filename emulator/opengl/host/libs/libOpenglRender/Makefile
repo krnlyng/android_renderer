@@ -29,6 +29,7 @@ CXXFLAGS	+= -I../../include -I../../../shared/OpenglOsUtils/ -I../../../host/inc
 DEBUG       ?= 0
 VERBOSE     ?= 0
 X11			?= 0
+DEFINE_GLCHAR	?= 0
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -O0 -g3 -ggdb -pg
@@ -50,6 +51,11 @@ ifeq ($(X11),1)
 	LDLIBS += -lX11
 else
 	LDLIBS += `pkg-config --libs wayland-egl` `pkg-config --libs wayland-client`
+endif
+
+ifeq ($(DEFINE_GLCHAR),1)
+	CFLAGS += -DDEFINE_GLCHAR=1
+	CXXFLAGS += -DDEFINE_GLCHAR=1
 endif
 
 .PHONY: release clean
