@@ -32,12 +32,19 @@ OBJ         := $(patsubst %.c, %.o, $(filter %.c, $(SRC)))
 OBJ         += $(patsubst %.cpp, %.o, $(filter %.cpp, $(SRC)))
 DEP         := $(OBJ:.o=.d)
 
+ARM			?= 1
+
 SRC_DEPENDS :=
 
-CFLAGS      := -marm -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2
-CXXFLAGS    := -marm -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2
+CFLAGS      := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2
+CXXFLAGS    := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2
 LDFLAGS     :=
 LDLIBS      :=
+
+ifeq ($(ARM),1)
+	CFLAGS += -marm
+	CXXFLAGS += -marm
+endif
 
 CFLAGS		+= -I../../include -DHAVE_OFF64_T -DHAVE_SYS_UIO_H -DHAVE_ENDIAN_H -DHAVE_POSIX_FILEMAP
 CXXFLAGS	+= -I../../include -DHAVE_OFF64_T -DHAVE_SYS_UIO_H -DHAVE_ENDIAN_H -DHAVE_POSIX_FILEMAP
