@@ -17,6 +17,7 @@ CXXFLAGS	+= -I../libs/libOpenglRender -I../../shared/OpenglCodecCommon -I../../h
 
 DEBUG       ?= 0
 VERBOSE     ?= 0
+X11			?= 0
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -O0 -g3 -ggdb -pg
@@ -30,6 +31,12 @@ ifeq ($(VERBOSE),1)
 else
 	MSG := @echo
 	CMD := @
+endif
+
+ifeq ($(X11),1)
+	CFLAGS += -DX11
+	CXXFLAGS += -DX11
+	LDLIBS += -lX11
 endif
 
 .PHONY: release clean

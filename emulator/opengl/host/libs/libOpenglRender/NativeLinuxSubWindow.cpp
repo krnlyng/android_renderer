@@ -17,9 +17,12 @@
 
 #include <stdio.h>
 #include <string.h>
+#ifndef X11
 #include <wayland-egl.h>
+#else
+#endif
 
-/*
+#ifdef X11
 static Bool WaitForMapNotify(Display *d, XEvent *e, char *arg)
 {
     if (e->type == MapNotify && e->xmap.window == (Window)arg) {
@@ -27,10 +30,14 @@ static Bool WaitForMapNotify(Display *d, XEvent *e, char *arg)
     }
     return 0;
 }
-*/
+#endif
 
 /* krnlyng, thanks to http://jan.newmarch.name/Wayland/EGL */
+#ifdef X11
+Display *s_display = NULL;
+Display *display_out[1];
 
+#else
 struct wl_display *the_wl_display = NULL;
 struct wl_compositor *compositor = NULL;
 struct wl_surface *surface;
@@ -100,14 +107,14 @@ get_server_references(EGLNativeDisplayType display) {
 
     return 0;
 }
-
+#endif
 EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
                                     EGLNativeDisplayType display,
                                     int x, int y,int width, int height) {
 
     /* krnlyng */
     printf("creating sub window\n"); 
-
+#ifndef X11
     if(get_server_references(display) < 0) return NULL;
 
     surface = wl_compositor_create_surface(compositor);
@@ -130,8 +137,8 @@ EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
     printf("created sub window\n");
 
     return win;
-
-   /*
+#else
+   
    // The call to this function is protected by a lock
    // in FrameBuffer so it is safe to check and initialize s_display here
    if (!s_display) s_display = XOpenDisplay(NULL);
@@ -143,12 +150,16 @@ EGLNativeWindowType createSubWindow(FBNativeWindowType p_window,
     XMapWindow(*display_out,win);
     XEvent e;
     XIfEvent(*display_out, &e, WaitForMapNotify, (char *)win);
-    return win;*/
+    return win;
+#endif
 }
 
 void destroySubWindow(EGLNativeDisplayType dis,EGLNativeWindowType win){
     /* krnlyng hmm */
+#ifndef X11
     //wl_surface_destroy(win);
     wl_egl_window_destroy((struct wl_egl_window*)win);
-    //XDestroyWindow(dis, win);
+#else
+    XDestroyWindow(dis, win);
+#endif
 }
