@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
     Display *the_display;
     the_display = XOpenDisplay(NULL);
 #endif
-    bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0, the_display);
+    bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0, (EGLNativeDisplayType)the_display);
     if (!inited) {
         return -1;
     }
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
 
     float zRot = 0.0f;
     inited = createOpenGLSubwindow(windowId, 0, 0,
-                                   winWidth, winHeight, zRot, the_display);
+                                   winWidth, winHeight, zRot, (EGLNativeDisplayType)the_display);
     if (!inited) {
         printf("failed to create OpenGL subwindow\n");
         stopOpenGLRenderer();
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
                                                 (winWidth - subwinWidth) / 2,
                                                 (winHeight - subwinHeight) / 2,
                                                 subwinWidth, subwinHeight, 
-                                                zRot, the_display);
+                                                zRot, (EGLNativeDisplayType)the_display);
                     printf("create subwin returned %d\n", stat);
                 }
                 else if (ev.key.keysym.sym == SDLK_KP_PLUS) {
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
                                                 (winWidth - subwinWidth) / 2,
                                                 (winHeight - subwinHeight) / 2,
                                                 subwinWidth, subwinHeight, 
-                                                zRot, the_display);
+                                                zRot, (EGLNativeDisplayType)the_display);
                     printf("create subwin returned %d\n", stat);
                 }
                 else if (ev.key.keysym.sym == SDLK_KP_MULTIPLY) {
