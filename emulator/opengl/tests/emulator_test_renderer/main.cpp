@@ -190,17 +190,17 @@ int main(int argc, char *argv[])
     the_touch->x = 0;
     the_touch->y = 0;
 
-    struct wl_display *the_wl_display = wl_display_connect(0);
-    if(the_wl_display == NULL)
+    struct wl_display *the_display = wl_display_connect(0);
+    if(the_display == NULL)
     {
         printf("Could not connect to display\n");
         return -1;
     }
-    struct wl_registry *registry = wl_display_get_registry(the_wl_display);
+    struct wl_registry *registry = wl_display_get_registry(the_display);
     wl_registry_add_listener(registry, &registry_listener, the_touch);
 
-    wl_display_dispatch(the_wl_display);
-    wl_display_roundtrip(the_wl_display);
+    wl_display_dispatch(the_display);
+    wl_display_roundtrip(the_display);
 
     if(the_touch->w_seat == NULL || the_touch->w_touch == NULL)
     {
@@ -214,10 +214,10 @@ int main(int argc, char *argv[])
     // initialize OpenGL renderer to render in our window
     //
 #ifdef X11
-    Display *the_wl_display;
-    the_wl_display = XOpenDisplay(NULL);
+    Display *the_display;
+    the_display = XOpenDisplay(NULL);
 #endif
-    bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0, the_wl_display);
+    bool inited = initOpenGLRenderer(winWidth, winHeight, portNum, 0, 0, the_display);
     if (!inited) {
         return -1;
     }
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
 
     float zRot = 0.0f;
     inited = createOpenGLSubwindow(windowId, 0, 0,
-                                   winWidth, winHeight, zRot, the_wl_display);
+                                   winWidth, winHeight, zRot, the_display);
     if (!inited) {
         printf("failed to create OpenGL subwindow\n");
         stopOpenGLRenderer();
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
                                                 (winWidth - subwinWidth) / 2,
                                                 (winHeight - subwinHeight) / 2,
                                                 subwinWidth, subwinHeight, 
-                                                zRot, the_wl_display);
+                                                zRot, the_display);
                     printf("create subwin returned %d\n", stat);
                 }
                 else if (ev.key.keysym.sym == SDLK_KP_PLUS) {
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
                                                 (winWidth - subwinWidth) / 2,
                                                 (winHeight - subwinHeight) / 2,
                                                 subwinWidth, subwinHeight, 
-                                                zRot, the_wl_display);
+                                                zRot, the_display);
                     printf("create subwin returned %d\n", stat);
                 }
                 else if (ev.key.keysym.sym == SDLK_KP_MULTIPLY) {
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
 #endif
 #ifndef X11
         /* krnlyng */
-        if(wl_display_dispatch(the_wl_display) < 0)
+        if(wl_display_dispatch(the_display) < 0)
         {
             printf("wl_display_dispatch failed\n");
             break;
@@ -337,7 +337,7 @@ EXIT:
     delete injector;
 #else
     /* krnlyng */
-    wl_display_disconnect(the_wl_display);
+    wl_display_disconnect(the_display);
 
     free(the_touch);
 

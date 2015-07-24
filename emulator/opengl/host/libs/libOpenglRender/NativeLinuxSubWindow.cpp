@@ -38,7 +38,7 @@ Display *s_display = NULL;
 Display *display_out[1];
 
 #else
-struct wl_display *the_wl_display = NULL;
+struct wl_display *the_display = NULL;
 struct wl_compositor *compositor = NULL;
 struct wl_surface *surface;
 struct wl_egl_window *egl_window;
@@ -85,18 +85,18 @@ static const struct wl_registry_listener registry_listener = {
 
 static int
 get_server_references(EGLNativeDisplayType display) {
-    the_wl_display = display;
-    if(the_wl_display == NULL)
+    the_display = display;
+    if(the_display == NULL)
     {
         fprintf(stderr, "get_server_references: invalid display argument\n");
         return -1;
     }
 
-    struct wl_registry *registry = wl_display_get_registry(the_wl_display);
+    struct wl_registry *registry = wl_display_get_registry(the_display);
     wl_registry_add_listener(registry, &registry_listener, NULL);
 
-    wl_display_dispatch(the_wl_display);
-    wl_display_roundtrip(the_wl_display);
+    wl_display_dispatch(the_display);
+    wl_display_roundtrip(the_display);
 
     if (compositor == NULL || shell == NULL) {
         fprintf(stderr, "Can't find compositor or shell\n");
