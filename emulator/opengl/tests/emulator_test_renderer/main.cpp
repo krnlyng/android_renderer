@@ -259,6 +259,7 @@ int main(int argc, char *argv[])
     SDL_SysWMinfo  wminfo;
     memset(&wminfo, 0, sizeof(wminfo));
 #if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_VERSION(&wminfo.version);
     SDL_GetWindowWMInfo(window, &wminfo);
 #else
     SDL_GetWMInfo(&wminfo);
