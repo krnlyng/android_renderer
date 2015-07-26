@@ -16,8 +16,10 @@
 #undef HAVE_MALLOC_H
 /* krnlyng */
 //#include <wayland-client.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
+#ifdef X11
+#include <SDL.h>
+#include <SDL_syswm.h>
+#endif
 
 #include <EGL/egl.h>
 #ifdef X11
@@ -223,6 +225,58 @@ int main(int argc, char *argv[])
     }
     printf("renderer process started\n");
 
+#ifdef X11
+#ifdef __linux__
+    // some OpenGL implementations may call X functions
+    // it is safer to synchronize all X calls made by all the
+    // rendering threads. (although the calls we do are locked
+    // in the FrameBuffer singleton object).
+    XInitThreads();
+#endif
+
+    //
+    // Inialize SDL window
+    //
+    if (SDL_Init(SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO)) {
+        fprintf(stderr,"SDL init failed: %s\n", SDL_GetError());
+        return -1;
+    }
+
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_Window *window = SDL_CreateWindow("emulator_test_renderer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, winWidth, winHeight, SDL_WINDOW_OPENGL);
+    if(window == NULL) {
+        fprintf(stderr, "Failed to initialize SDL screen: %s\n", SDL_GetError());
+        return -1;
+    }
+#else
+    SDL_Surface *surface = SDL_SetVideoMode(winWidth, winHeight, 32, SDL_SWSURFACE);
+    if (surface == NULL) {
+        fprintf(stderr,"Failed to set video mode: %s\n", SDL_GetError());
+        return -1;
+    }
+#endif
+
+    SDL_SysWMinfo  wminfo;
+    memset(&wminfo, 0, sizeof(wminfo));
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_GetWindowWMInfo(window, &wminfo);
+#else
+    SDL_GetWMInfo(&wminfo);
+#endif
+#ifdef _WIN32
+    windowId = wminfo.window;
+    WSADATA  wsaData;
+    int      rc = WSAStartup( MAKEWORD(2,2), &wsaData);
+    if (rc != 0) {
+            printf( "could not initialize Winsock\n" );
+    }
+#elif __linux__
+    windowId = wminfo.info.x11.window;
+#elif __APPLE__
+    windowId = wminfo.nsWindowPtr;
+#endif
+#endif
+
     float zRot = 0.0f;
     inited = createOpenGLSubwindow(windowId, 0, 0,
                                    winWidth, winHeight, zRot, (EGLNativeDisplayType)the_display);
@@ -245,6 +299,9 @@ int main(int argc, char *argv[])
         the_touch->injector->poll();
 
 #else
+        injector->wait(1000/15);
+        injector->poll();
+
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
             case SDL_MOUSEBUTTONDOWN:

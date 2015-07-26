@@ -7,10 +7,22 @@ DEP         := $(OBJ:.o=.d)
 CFLAGS      := -Wall -std=gnu99 -I../../../../include
 CXXFLAGS    := -Wall -I../../../../include
 LDFLAGS     := -L../../../..
-LDLIBS      := -lOpenglRender -lGLESv1_dec -lGLESv2_dec -lOpenglOsUtils -lOpenglCodecCommon -l_renderControl_dec -lutils -lrt -lz -lpthread -lSDL2
+LDLIBS      := -lOpenglRender -lGLESv1_dec -lGLESv2_dec -lOpenglOsUtils -lOpenglCodecCommon -l_renderControl_dec -lutils -lrt -lz -lpthread
 
 CFLAGS		+= -DHAVE_PTHREADS -DHAVE_SYS_UIO_H
 CXXFLAGS	+= -DHAVE_PTHREADS -DHAVE_SYS_UIO_H
+
+SDL2_LIBS	:= `sdl2-config --libs`
+
+ifeq ($(SDL2_LIBS), "")
+	CFLAGS += `sdl-config --cflags`
+	CXXFLAGS += `sdl-config --cflags`
+	LDLIBS += `sdl-config --libs`
+else
+	CFLAGS += `sdl2-config --cflags`
+	CXXFLAGS += `sdl2-config --cflags`
+	LDLIBS += `sdl2-config --libs`
+endif
 
 CFLAGS		+= -I../../host/include -I../event_injector
 CXXFLAGS	+= -I../../host/include -I../event_injector
