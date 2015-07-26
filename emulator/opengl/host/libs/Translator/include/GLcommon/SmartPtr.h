@@ -17,8 +17,7 @@
 #define __SMART_PTR_H
 
 #include <cutils/threads.h>
-/* krnylng */
-#include <cutils/atomic-arm.h>
+#include <cutils/atomic.h>
 
 template <class T, bool threadSafe = false>
 class SmartPtr

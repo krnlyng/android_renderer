@@ -4,8 +4,7 @@
 #include "List.h"
 
 #include <pthread.h>
-/* krnylng */
-#include <cutils/atomic-arm.h>
+#include <cutils/atomic.h>
 #include <sys/types.h>
 
 class SocketClient {

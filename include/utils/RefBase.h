@@ -17,8 +17,7 @@
 #ifndef ANDROID_REF_BASE_H
 #define ANDROID_REF_BASE_H
 
-/* krnlyng */
-#include <cutils/atomic-arm.h>
+#include <cutils/atomic.h>
 
 #include <stdint.h>
 #include <sys/types.h>

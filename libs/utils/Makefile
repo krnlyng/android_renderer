@@ -27,7 +27,8 @@ SRC         := 	BasicHashtable.cpp \
 				Timers.cpp \
 				Unicode.cpp \
 				ZipFileCRO.cpp \
-				misc.cpp
+				misc.cpp \
+				../libcutils/atomic.c
 OBJ         := $(patsubst %.c, %.o, $(filter %.c, $(SRC)))
 OBJ         += $(patsubst %.cpp, %.o, $(filter %.cpp, $(SRC)))
 DEP         := $(OBJ:.o=.d)
@@ -36,8 +37,8 @@ ARM			?= 1
 
 SRC_DEPENDS :=
 
-CFLAGS      := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2
-CXXFLAGS    := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2
+CFLAGS      := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2 -DANDROID_SMP=0
+CXXFLAGS    := -Wall -fPIC -DHAVE_PTHREADS -DWITH_GLES2 -DANDROID_SMP=0
 LDFLAGS     :=
 LDLIBS      :=
 
